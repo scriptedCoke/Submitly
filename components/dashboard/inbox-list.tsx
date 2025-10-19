@@ -98,10 +98,12 @@ export function InboxList({
               className="border-border/50 hover:border-border transition-all duration-200 hover:shadow-sm"
             >
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-                <div className="flex-1 space-y-1">
-                  <CardTitle className="text-lg line-clamp-1">{inbox.title}</CardTitle>
+                <div className="flex-1 space-y-1 min-w-0">
+                  <CardTitle className="text-lg break-words">{inbox.title}</CardTitle>
                   {inbox.description && (
-                    <CardDescription className="line-clamp-2 text-sm">{inbox.description}</CardDescription>
+                    <CardDescription className="text-sm break-words whitespace-normal">
+                      {inbox.description}
+                    </CardDescription>
                   )}
                 </div>
                 <DropdownMenu>

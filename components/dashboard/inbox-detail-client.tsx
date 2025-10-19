@@ -95,21 +95,21 @@ export function InboxDetailClient({
 
           <Card className="border-border/50 mb-8 transition-all hover:shadow-lg duration-300 bg-gradient-to-br from-card to-card/50">
             <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-2 flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="p-2 rounded-lg bg-primary/10 shrink-0">
                       <FileText className="h-5 w-5 text-primary" />
                     </div>
-                    <CardTitle className="text-2xl">{inbox?.title || initialInbox.title}</CardTitle>
+                    <CardTitle className="text-2xl break-words">{inbox?.title || initialInbox.title}</CardTitle>
                   </div>
                   {(inbox?.description || initialInbox.description) && (
-                    <CardDescription className="text-base">
+                    <CardDescription className="text-base break-words whitespace-normal">
                       {inbox?.description || initialInbox.description}
                     </CardDescription>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <EditInboxDialog
                     inbox={inbox || initialInbox}
                     subscriptionTier={subscriptionTier}

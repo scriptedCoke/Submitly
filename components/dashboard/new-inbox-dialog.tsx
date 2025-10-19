@@ -40,6 +40,8 @@ export function NewInboxDialog({
 
   const isUnlimited = subscriptionTier === "unlimited"
 
+  const TITLE_MAX_LENGTH = 60
+
   const generateRandomSlug = () => {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     let result = ""
@@ -63,6 +65,12 @@ export function NewInboxDialog({
 
     if (!title.trim()) {
       setError("Title is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (title.length > TITLE_MAX_LENGTH) {
+      setError(`Title must be ${TITLE_MAX_LENGTH} characters or less`)
       setIsLoading(false)
       return
     }
@@ -148,10 +156,13 @@ export function NewInboxDialog({
                 placeholder="e.g., Project Submissions, Resume Upload"
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
+                maxLength={TITLE_MAX_LENGTH}
                 required
                 className="h-10"
               />
-              <p className="text-xs text-muted-foreground">Give your Inbox a clear, descriptive name</p>
+              <p className="text-xs text-muted-foreground">
+                {title.length}/{TITLE_MAX_LENGTH} characters
+              </p>
             </div>
 
             <div className="space-y-2">

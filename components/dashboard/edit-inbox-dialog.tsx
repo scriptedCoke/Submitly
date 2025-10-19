@@ -60,6 +60,8 @@ export function EditInboxDialog({
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
   const setIsOpen = onOpenChange || setInternalOpen
 
+  const TITLE_MAX_LENGTH = 60
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -67,6 +69,12 @@ export function EditInboxDialog({
 
     if (!title.trim()) {
       setError("Title is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (title.length > TITLE_MAX_LENGTH) {
+      setError(`Title must be ${TITLE_MAX_LENGTH} characters or less`)
       setIsLoading(false)
       return
     }
@@ -121,8 +129,12 @@ export function EditInboxDialog({
               placeholder="e.g., Project Submissions"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              maxLength={TITLE_MAX_LENGTH}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              {title.length}/{TITLE_MAX_LENGTH} characters
+            </p>
           </div>
 
           <div className="space-y-2">
