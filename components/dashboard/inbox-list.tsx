@@ -184,9 +184,10 @@ export function InboxList({
           onOpenChange={(open) => {
             if (!open) {
               setEditingInbox(null)
-            } else {
-              onUpdate?.()
             }
+          }}
+          onSuccess={() => {
+            onUpdate?.()
           }}
         />
       )}

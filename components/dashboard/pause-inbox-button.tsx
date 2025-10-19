@@ -20,10 +20,12 @@ export function PauseInboxButton({
   inboxId,
   isPaused,
   isUnlimited,
+  onUpdate,
 }: {
   inboxId: string
   isPaused: boolean
   isUnlimited: boolean
+  onUpdate?: () => void
 }) {
   const [isLoading, setIsLoading] = useState(false)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
@@ -43,6 +45,7 @@ export function PauseInboxButton({
 
       if (error) throw error
 
+      onUpdate?.()
       router.refresh()
     } catch (error) {
       console.error("Failed to toggle pause:", error)

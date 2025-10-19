@@ -37,6 +37,7 @@ interface EditInboxDialogProps {
   trigger?: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 export function EditInboxDialog({
@@ -45,6 +46,7 @@ export function EditInboxDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
+  onSuccess,
 }: EditInboxDialogProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [title, setTitle] = useState(inbox.title)
@@ -86,6 +88,7 @@ export function EditInboxDialog({
         throw updateError
       }
 
+      onSuccess?.()
       router.refresh()
       setIsOpen(false)
     } catch (err: unknown) {

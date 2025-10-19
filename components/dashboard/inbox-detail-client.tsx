@@ -50,20 +50,34 @@ async function fetchSubmissions(inboxId: string) {
   return data || []
 }
 
+async function fetchInbox(inboxId: string) {
+  const supabase = createClient()
+  const { data } = await supabase.from("inboxes").select("*").eq("id", inboxId).single()
+  return data
+}
+
 export function InboxDetailClient({
   user,
-  inbox,
+  inbox: initialInbox,
   subscriptionTier,
 }: {
   user: User
   inbox: Inbox
   subscriptionTier: string
 }) {
-  const { data: submissions, mutate } = useSWR<Submission[]>(`submissions-${inbox.id}`, () =>
-    fetchSubmissions(inbox.id),
+  const { data: inbox, mutate: mutateInbox } = useSWR<Inbox>(
+    `inbox-${initialInbox.id}`,
+    () => fetchInbox(initialInbox.id),
+    {
+      fallbackData: initialInbox,
+    },
   )
 
-  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/submit/${inbox.slug}`
+  const { data: submissions, mutate } = useSWR<Submission[]>(`submissions-${initialInbox.id}`, () =>
+    fetchSubmissions(initialInbox.id),
+  )
+
+  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/submit/${inbox?.slug || initialInbox.slug}`
   const isUnlimited = subscriptionTier === "unlimited"
 
   return (
@@ -87,15 +101,32 @@ export function InboxDetailClient({
                     <div className="p-2 rounded-lg bg-primary/10">
                       <FileText className="h-5 w-5 text-primary" />
                     </div>
-                    <CardTitle className="text-2xl">{inbox.title}</CardTitle>
+                    <CardTitle className="text-2xl">{inbox?.title || initialInbox.title}</CardTitle>
                   </div>
-                  {inbox.description && <CardDescription className="text-base">{inbox.description}</CardDescription>}
+                  {(inbox?.description || initialInbox.description) && (
+                    <CardDescription className="text-base">
+                      {inbox?.description || initialInbox.description}
+                    </CardDescription>
+                  )}
                 </div>
                 <div className="flex gap-2">
-                  <EditInboxDialog inbox={inbox} subscriptionTier={subscriptionTier} />
-                  <DeleteInboxButton inboxId={inbox.id} />
-                  <PauseInboxButton inboxId={inbox.id} isPaused={inbox.is_paused} isUnlimited={isUnlimited} />
-                  {inbox.is_active ? (
+                  <EditInboxDialog
+                    inbox={inbox || initialInbox}
+                    subscriptionTier={subscriptionTier}
+                    onSuccess={mutateInbox}
+                  />
+                  <DeleteInboxButton inboxId={initialInbox.id} />
+                  <PauseInboxButton
+                    inboxId={initialInbox.id}
+                    isPaused={inbox?.is_paused || initialInbox.is_paused}
+                    isUnlimited={isUnlimited}
+                    onUpdate={mutateInbox}
+                  />
+                  {inbox?.is_paused || initialInbox.is_paused ? (
+                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+                      Paused
+                    </Badge>
+                  ) : inbox?.is_active || initialInbox.is_active ? (
                     <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">
                       Active
                     </Badge>
@@ -122,7 +153,7 @@ export function InboxDetailClient({
                   </div>
                   <div>
                     <p className="text-sm font-medium">
-                      {new Date(inbox.created_at).toLocaleDateString("en-US", {
+                      {new Date(inbox?.created_at || initialInbox.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -151,7 +182,7 @@ export function InboxDetailClient({
                     asChild
                     className="transition-all hover:scale-105 duration-200 hover:bg-primary/10 bg-transparent"
                   >
-                    <Link href={`/submit/${inbox.slug}`} target="_blank">
+                    <Link href={`/submit/${inbox?.slug || initialInbox.slug}`} target="_blank">
                       <ExternalLink className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -171,7 +202,7 @@ export function InboxDetailClient({
           </div>
 
           {submissions && submissions.length > 0 ? (
-            <SubmissionsList submissions={submissions} inboxId={inbox.id} onUpdate={mutate} />
+            <SubmissionsList submissions={submissions} inboxId={initialInbox.id} onUpdate={mutate} />
           ) : (
             <Card className="border-border/50 border-dashed transition-all hover:border-primary/50 duration-300">
               <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -183,7 +214,7 @@ export function InboxDetailClient({
                   Share your Inbox link to start receiving file submissions.
                 </p>
                 <Button variant="outline" asChild>
-                  <Link href={`/submit/${inbox.slug}`} target="_blank">
+                  <Link href={`/submit/${inbox?.slug || initialInbox.slug}`} target="_blank">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Preview submission form
                   </Link>
