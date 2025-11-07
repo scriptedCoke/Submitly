@@ -24,10 +24,9 @@ export function SubmissionForm({
 
   useEffect(() => {
     const fetchUserName = async () => {
-      if (user) {
+      if (user && user.id) {
         try {
           const supabase = createClient()
-          console.log("[v0] Fetching user profile for:", user.id)
           const { data, error: profileError } = await supabase
             .from("profiles")
             .select("full_name")
