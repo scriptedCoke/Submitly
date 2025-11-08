@@ -20,6 +20,22 @@ export async function createCheckoutSession() {
 
   let customerId = profile?.stripe_customer_id
 
+  if (customerId) {
+    try {
+      const customer = await stripe.customers.retrieve(customerId)
+      if (customer.deleted) {
+        customerId = null
+      }
+    } catch (error: any) {
+      // Customer doesn't exist, create a new one
+      if (error.type === "StripeInvalidRequestError") {
+        customerId = null
+      } else {
+        throw error
+      }
+    }
+  }
+
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: user.email,
@@ -74,15 +90,36 @@ export async function createPortalSession() {
   }
 
   try {
-    // Verify the customer exists in Stripe before creating portal session
-    const customer = await stripe.customers.retrieve(profile.stripe_customer_id)
+    let customerId = profile.stripe_customer_id
+    let customer
+
+    try {
+      customer = await stripe.customers.retrieve(customerId)
+    } catch (error: any) {
+      if (error.type === "StripeInvalidRequestError") {
+        // Customer doesn't exist, create a new one
+        const newCustomer = await stripe.customers.create({
+          email: user.email,
+          metadata: {
+            supabase_user_id: user.id,
+          },
+        })
+        customerId = newCustomer.id
+        customer = newCustomer
+
+        // Update the profile with the new customer ID
+        await supabase.from("profiles").update({ stripe_customer_id: customerId }).eq("id", user.id)
+      } else {
+        throw error
+      }
+    }
 
     if (customer.deleted) {
       throw new Error("Stripe customer has been deleted. Please contact support.")
     }
 
     const session = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
+      customer: customerId,
       return_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/profile`,
     })
 
