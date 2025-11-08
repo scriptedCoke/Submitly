@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -36,9 +36,12 @@ export function NewInboxDialog({
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
+  const [inboxCount, setInboxCount] = useState(0)
   const router = useRouter()
 
   const isUnlimited = subscriptionTier === "unlimited"
+  const inboxLimit = isUnlimited ? null : 10
+  const hasReachedLimit = inboxLimit && inboxCount >= inboxLimit
 
   const TITLE_MAX_LENGTH = 60
 
@@ -51,6 +54,21 @@ export function NewInboxDialog({
     return result
   }
 
+  useEffect(() => {
+    const fetchInboxCount = async () => {
+      const supabase = createClient()
+      const { count, error } = await supabase.from("inboxes").select("*", { count: "exact" }).eq("creator_id", userId)
+
+      if (!error) {
+        setInboxCount(count || 0)
+      }
+    }
+
+    if (open) {
+      fetchInboxCount()
+    }
+  }, [open, userId])
+
   const handleTitleChange = (value: string) => {
     setTitle(value)
     if (isUnlimited && !slug) {
@@ -62,6 +80,12 @@ export function NewInboxDialog({
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+
+    if (hasReachedLimit) {
+      setShowUpgradeDialog(true)
+      setIsLoading(false)
+      return
+    }
 
     if (!title.trim()) {
       setError("Title is required")
@@ -114,7 +138,6 @@ export function NewInboxDialog({
         throw insertError
       }
 
-      // Reset form and close dialog
       setTitle("")
       setDescription("")
       setSlug("")
@@ -137,7 +160,7 @@ export function NewInboxDialog({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="transition-all hover:scale-105 duration-200 shadow-sm">
+          <Button disabled={hasReachedLimit} className="transition-all hover:scale-105 duration-200 shadow-sm">
             <Plus className="mr-2 h-4 w-4" />
             New Inbox
           </Button>
@@ -147,6 +170,13 @@ export function NewInboxDialog({
             <DialogTitle>Create new Inbox</DialogTitle>
             <DialogDescription>Configure your file submission form</DialogDescription>
           </DialogHeader>
+
+          {hasReachedLimit && (
+            <div className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400 border border-amber-500/20">
+              You've reached the maximum of {inboxLimit} inboxes on the Basic plan. Upgrade to Unlimited for unlimited
+              inboxes.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6 mt-4">
             <div className="space-y-2">

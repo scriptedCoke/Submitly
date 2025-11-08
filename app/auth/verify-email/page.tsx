@@ -16,7 +16,7 @@ export default function VerifyEmailPage() {
           <CardContent className="text-center">
             <p className="text-sm text-muted-foreground leading-relaxed">
               Please check your email and click the verification link to activate your account. Once verified, you can
-              sign in and start creating SubmitBoxes.
+              sign in and start creating inboxes and view your dashboard.
             </p>
           </CardContent>
         </Card>

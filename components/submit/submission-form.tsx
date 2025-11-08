@@ -216,7 +216,7 @@ export function SubmissionForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={false}
+          disabled={!!user}
           className="h-11 shadow-sm"
         />
         {user ? (

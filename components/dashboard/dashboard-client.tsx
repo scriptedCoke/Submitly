@@ -59,12 +59,27 @@ export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade
   const inboxPercentage = inboxLimit ? (totalInboxes / inboxLimit) * 100 : 0
   const storagePercentage = storageLimit ? (Number.parseFloat(storageUsedMB) / storageLimit) * 100 : 0
 
+  // Check if storage limit reached and pause all inboxes if so
+  const isStorageLimitReached = storageLimit && Number.parseFloat(storageUsedMB) >= storageLimit
+
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardHeader user={user} />
 
       <main className="flex-1 bg-gradient-to-br from-background via-background to-muted/20">
         <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+          {/* Show storage warning if limit reached */}
+          {isStorageLimitReached && (
+            <div className="mb-6 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/20 flex items-center justify-between">
+              <div>
+                <p className="font-medium">Storage limit reached</p>
+                <p className="text-xs mt-1">
+                  All inboxes have been paused. Please delete files or upgrade to continue receiving submissions.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Stats Cards */}
           <div className="mb-8 grid gap-4 md:grid-cols-4">
             <Card className="border-border/50 bg-gradient-to-br from-blue-500/10 via-background to-background transition-all hover:shadow-lg hover:-translate-y-1 duration-300">
