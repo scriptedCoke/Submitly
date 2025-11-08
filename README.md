@@ -1,30 +1,8 @@
-# File submission website
+# Submitly
+A side project that I work on in my spare time
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+## What is Submitly?
+Submitly simplifies file collection, with cheap plans for serious file collection. Inboxes allow you to collect any type of file needed, and will be submitted into your dashboard for preview or download.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/zimogus-projects/v0-file-submission-website)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/bWsi8aPijnX)
-
-## Overview
-
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/zimogus-projects/v0-file-submission-website](https://vercel.com/zimogus-projects/v0-file-submission-website)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/projects/bWsi8aPijnX](https://v0.app/chat/projects/bWsi8aPijnX)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## Is it free?
+Yes! The basic plan is free whereas the unlimited plan is only $2 per **year**!
