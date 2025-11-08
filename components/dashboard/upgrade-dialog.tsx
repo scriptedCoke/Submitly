@@ -13,13 +13,13 @@ export function UpgradeDialog({ open, onOpenChange }: { open: boolean; onOpenCha
             <Crown className="h-5 w-5 text-primary" />
             Upgrade to Unlimited
           </DialogTitle>
-          <DialogDescription>Remove all limits and unlock premium features for just $2/month.</DialogDescription>
+          <DialogDescription>Remove all limits and unlock premium features for just $2/year.</DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-3xl font-bold">$2</span>
-              <span className="text-muted-foreground">/month</span>
+              <span className="text-muted-foreground">/year</span>
             </div>
             <ul className="space-y-3">
               <li className="flex items-start gap-3">

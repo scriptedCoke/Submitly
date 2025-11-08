@@ -39,7 +39,7 @@ export function SubscriptionCard({ profile }: { profile: Profile }) {
                 <p className="font-semibold capitalize">{profile.subscription_tier} Plan</p>
                 {isUnlimited && <Badge variant="default">Active</Badge>}
               </div>
-              <p className="text-sm text-muted-foreground">{isUnlimited ? "$2/month" : "Free forever"}</p>
+              <p className="text-sm text-muted-foreground">{isUnlimited ? "$2/year" : "Free forever"}</p>
             </div>
           </div>
         </div>

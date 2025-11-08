@@ -324,7 +324,7 @@ export default async function LandingPage() {
                   <h3 className="text-2xl font-semibold">Unlimited</h3>
                   <div className="mt-4 flex items-baseline gap-2">
                     <span className="text-5xl font-bold">$2</span>
-                    <span className="text-xl text-muted-foreground">/month</span>
+                    <span className="text-xl text-muted-foreground">/year</span>
                   </div>
                   <p className="mt-3 text-muted-foreground">For serious file collection</p>
                 </div>

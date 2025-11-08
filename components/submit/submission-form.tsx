@@ -216,10 +216,14 @@ export function SubmissionForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={!!user}
+          disabled={false}
           className="h-11 shadow-sm"
         />
-        {user && <p className="text-xs text-muted-foreground">Signed in as {name || user.email}</p>}
+        {user ? (
+          <p className="text-xs text-muted-foreground">Signed in as {name || user.email}</p>
+        ) : (
+          name && <p className="text-xs text-muted-foreground">Submitting as {name}</p>
+        )}
       </div>
 
       <div className="space-y-3">

@@ -93,7 +93,7 @@ export function PauseInboxButton({
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-3xl font-bold">$2</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-muted-foreground">/year</span>
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
