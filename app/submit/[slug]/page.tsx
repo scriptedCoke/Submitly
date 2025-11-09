@@ -1,5 +1,6 @@
 import type React from "react"
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,9 +37,16 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default async function SubmitPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const supabase = await createClient()
 
-  // Try to fetch the inbox - this query should work for anonymous users if RLS allows it
+  // Create service role client (bypasses RLS) to fetch publicly available inboxes
+  const cookieStore = await cookies()
+  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: () => {},
+    },
+  })
+
   const { data: inbox, error } = await supabase
     .from("inboxes")
     .select("*")
