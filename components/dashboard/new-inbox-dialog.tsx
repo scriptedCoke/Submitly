@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,8 @@ export function NewInboxDialog({
   userId,
   subscriptionTier,
   onSuccess,
-}: { userId: string; subscriptionTier: string; onSuccess?: () => void }) {
+  isAtLimit,
+}: { userId: string; subscriptionTier: string; onSuccess?: () => void; isAtLimit?: boolean }) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -36,12 +37,11 @@ export function NewInboxDialog({
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
-  const [inboxCount, setInboxCount] = useState(0)
   const router = useRouter()
 
   const isUnlimited = subscriptionTier === "unlimited"
   const inboxLimit = isUnlimited ? null : 10
-  const hasReachedLimit = inboxLimit && inboxCount >= inboxLimit
+  const hasReachedLimit = isAtLimit || (inboxLimit && isAtLimit)
 
   const TITLE_MAX_LENGTH = 60
 
@@ -53,21 +53,6 @@ export function NewInboxDialog({
     }
     return result
   }
-
-  useEffect(() => {
-    const fetchInboxCount = async () => {
-      const supabase = createClient()
-      const { count, error } = await supabase.from("inboxes").select("*", { count: "exact" }).eq("creator_id", userId)
-
-      if (!error) {
-        setInboxCount(count || 0)
-      }
-    }
-
-    if (open) {
-      fetchInboxCount()
-    }
-  }, [open, userId])
 
   const handleTitleChange = (value: string) => {
     setTitle(value)

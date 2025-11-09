@@ -38,7 +38,7 @@ async function fetchDashboardData(userId: string) {
 }
 
 export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade: boolean }) {
-  const { data, mutate } = useSWR(`dashboard-${user.id}`, () => fetchDashboardData(user.id), {
+  const { data, mutate, isLoading } = useSWR(`dashboard-${user.id}`, () => fetchDashboardData(user.id), {
     refreshInterval: 0, // Don't auto-refresh, only on mutate
     revalidateOnFocus: true,
   })
@@ -54,6 +54,7 @@ export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade
   // Calculate limits
   const inboxLimit = subscriptionTier === "basic" ? 10 : null
   const storageLimit = subscriptionTier === "basic" ? 200 : null
+  const isAtInboxLimit = inboxLimit && totalInboxes >= inboxLimit
 
   // Calculate percentages for progress bars
   const inboxPercentage = inboxLimit ? (totalInboxes / inboxLimit) * 100 : 0
@@ -61,6 +62,52 @@ export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade
 
   // Check if storage limit reached and pause all inboxes if so
   const isStorageLimitReached = storageLimit && Number.parseFloat(storageUsedMB) >= storageLimit
+
+  if (isLoading && !data) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <DashboardHeader user={user} />
+
+        <main className="flex-1 bg-gradient-to-br from-background via-background to-muted/20">
+          <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
+            {/* Loading skeleton for stats cards */}
+            <div className="mb-8 grid gap-4 md:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="border-border/50 bg-muted/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="h-4 w-24 bg-muted-foreground/20 rounded animate-pulse"></div>
+                    <div className="h-8 w-8 bg-muted-foreground/20 rounded animate-pulse"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-8 w-12 bg-muted-foreground/20 rounded animate-pulse mb-2"></div>
+                    <div className="h-3 w-32 bg-muted-foreground/20 rounded animate-pulse"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Loading skeleton for inboxes section */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight">Your Inboxes</h2>
+              </div>
+              <div className="h-11 w-40 bg-muted-foreground/20 rounded-md animate-pulse"></div>
+            </div>
+
+            <Card className="border-border/50">
+              <CardContent className="py-16">
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-muted-foreground/10 rounded-lg animate-pulse"></div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -164,7 +211,12 @@ export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade
               <h2 className="text-2xl font-semibold tracking-tight">Your Inboxes</h2>
               <p className="text-sm text-muted-foreground">Manage your file submission forms</p>
             </div>
-            <NewInboxDialog userId={user.id} subscriptionTier={subscriptionTier} onSuccess={mutate} />
+            <NewInboxDialog
+              userId={user.id}
+              subscriptionTier={subscriptionTier}
+              onSuccess={mutate}
+              isAtLimit={isAtInboxLimit}
+            />
           </div>
 
           {inboxes.length > 0 ? (
@@ -179,7 +231,12 @@ export function DashboardClient({ user, showUpgrade }: { user: User; showUpgrade
                 <p className="text-sm text-muted-foreground mb-6 max-w-sm">
                   Create your first Inbox to start collecting file submissions from others.
                 </p>
-                <NewInboxDialog userId={user.id} subscriptionTier={subscriptionTier} onSuccess={mutate} />
+                <NewInboxDialog
+                  userId={user.id}
+                  subscriptionTier={subscriptionTier}
+                  onSuccess={mutate}
+                  isAtLimit={isAtInboxLimit}
+                />
               </CardContent>
             </Card>
           )}

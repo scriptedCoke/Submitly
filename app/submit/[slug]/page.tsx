@@ -1,5 +1,4 @@
 import type React from "react"
-import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -39,13 +38,16 @@ export default async function SubmitPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params
   const supabase = await createClient()
 
-  const { data: inbox } = await supabase.from("inboxes").select("*").eq("slug", slug).single()
+  // Try to fetch the inbox - this query should work for anonymous users if RLS allows it
+  const { data: inbox, error } = await supabase
+    .from("inboxes")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single()
 
-  if (!inbox) {
-    notFound()
-  }
-
-  if (!inbox.is_active) {
+  if (!inbox || error) {
+    // Return a better error page instead of notFound()
     return (
       <div className="flex min-h-screen flex-col bg-gradient-to-br from-background via-background to-muted/30">
         <header className="w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -64,9 +66,14 @@ export default async function SubmitPage({ params }: { params: Promise<{ slug: s
             <CardHeader className="text-center space-y-3">
               <CardTitle className="text-2xl">Inbox not found</CardTitle>
               <CardDescription>
-                This inbox doesn't exist or has been deleted. Please check the link and try again.
+                This submission form doesn't exist or has been deactivated. Please check the link and try again.
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link href="/">Back to Home</Link>
+              </Button>
+            </CardContent>
           </Card>
         </main>
       </div>
