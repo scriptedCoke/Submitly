@@ -10,11 +10,33 @@ export async function deleteSubmission(submissionId: string, fileUrl: string, in
   try {
     await del(fileUrl)
 
-    const { error } = await supabase.from("submissions").delete().eq("id", submissionId)
+    const { data: submission, error: fetchError } = await supabase
+      .from("submissions")
+      .select("file_size")
+      .eq("id", submissionId)
+      .single()
 
-    if (error) {
-      console.error("[v0] Database deletion error:", error)
-      throw new Error(`Database error: ${error.message}`)
+    if (fetchError) {
+      console.error("[v0] Error fetching submission:", fetchError)
+      throw new Error(`Database error: ${fetchError.message}`)
+    }
+
+    const { error: deleteError } = await supabase.from("submissions").delete().eq("id", submissionId)
+
+    if (deleteError) {
+      console.error("[v0] Database deletion error:", deleteError)
+      throw new Error(`Database error: ${deleteError.message}`)
+    }
+
+    if (submission?.file_size) {
+      const { error: updateError } = await supabase.rpc("update_storage_after_delete", {
+        file_size_bytes: submission.file_size,
+      })
+
+      if (updateError) {
+        console.error("[v0] Error updating storage:", updateError)
+        // Don't throw here - deletion was successful, storage update is secondary
+      }
     }
 
     revalidatePath(`/dashboard/inbox/${inboxId}`)

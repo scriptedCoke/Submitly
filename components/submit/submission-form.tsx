@@ -35,11 +35,13 @@ export function SubmissionForm({
 
           if (profileError) {
             console.error("[v0] Error fetching profile:", profileError)
+            setName("...")
           } else if (data?.full_name) {
             setName(data.full_name)
           }
         } catch (err) {
           console.error("[v0] Error creating Supabase client:", err)
+          setName("...")
         }
       }
     }
@@ -214,7 +216,7 @@ export function SubmissionForm({
           type="text"
           placeholder="Enter your name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => !user && setName(e.target.value)}
           required
           disabled={!!user}
           className="h-11 shadow-sm"

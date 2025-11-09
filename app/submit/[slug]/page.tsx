@@ -112,8 +112,11 @@ export default async function SubmitPage({ params }: { params: Promise<{ slug: s
     )
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   const IconComponent = ICON_MAP[inbox.icon || "sparkles"] || Sparkles
-  const user = { name: "John Doe", email: "john.doe@example.com" } // Dummy user object for demonstration purposes
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-background via-background to-muted/30">

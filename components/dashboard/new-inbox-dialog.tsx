@@ -160,10 +160,17 @@ export function NewInboxDialog({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button disabled={hasReachedLimit} className="transition-all hover:scale-105 duration-200 shadow-sm">
-            <Plus className="mr-2 h-4 w-4" />
-            New Inbox
-          </Button>
+          <div className="relative group">
+            <Button disabled={hasReachedLimit} className="transition-all hover:scale-105 duration-200 shadow-sm">
+              <Plus className="mr-2 h-4 w-4" />
+              New Inbox
+            </Button>
+            {hasReachedLimit && (
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-muted text-sm text-muted-foreground rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-md border border-border/50">
+                You've reached max inboxes. Upgrade to create more.
+              </div>
+            )}
+          </div>
         </DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
